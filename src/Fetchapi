@@ -1,0 +1,26 @@
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+@app.route('/sensordata', methods=['GET'])
+def get_sensor_data():
+    # Return a JSON response with the sensor data
+    data = {
+        'pH': 30,
+        'temperature': 10,
+        'humidity': 20,
+        'light': 30,
+        'ec': 40
+        
+    }
+    return jsonify(data)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+#'temperature': temp_humid_sensor.read_temp_humidity()[0],
+#'humidity': temp_humid_sensor.read_temp_humidity()[1],
+#'lightingIntensity': adc.get_adc_value(0),
+#'ec': adc.get_adc_value(1)
