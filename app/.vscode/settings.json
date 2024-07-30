@@ -1,0 +1,12 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "DEVOPS",
+            "group": "why",
+            "database": "sensor_data_db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}

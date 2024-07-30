@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const MyApp());
@@ -110,12 +112,12 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _login,
-              child: Row(
+              child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.login, color: Colors.white),
-                  const SizedBox(width: 8),
-                  const Text('Login'),
+                  Icon(Icons.login, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text('Login'),
                 ],
               ),
             ),
@@ -218,27 +220,36 @@ class SensorPage extends StatefulWidget {
 
 class _SensorPageState extends State<SensorPage> {
   String value = 'Loading...';
+  List<ChartData> chartData = [];
+  late TooltipBehavior _tooltipBehavior;
 
   @override
   void initState() {
     super.initState();
+    _tooltipBehavior = TooltipBehavior(
+      enable: true,
+      borderColor: Colors.red,
+      borderWidth: 5,
+    );
     fetchData();
   }
 
-fetchData() async {
-  final response = await http.get(Uri.parse('http://0.0.0.0:5000/sensor_data'));
-  if (response.statusCode == 200) {
-    final data = json.decode(response.body);
-    setState(() {
-      value = data[widget.sensorType].toString();
-    });
-  } else {
-    setState(() {
-      value = 'Failed to load data';
-    });
+  fetchData() async {
+    final response = await http.get(Uri.parse('http://172.23.15.184:5000/sensor_data'));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        value = data[widget.sensorType].toString();
+        if (widget.sensorType == 'temperature') {
+          chartData.add(ChartData(DateTime.now(), data['temperature'].toDouble()));
+        }
+      });
+    } else {
+      setState(() {
+        value = 'Failed to load data';
+      });
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -246,9 +257,63 @@ fetchData() async {
       appBar: AppBar(
         title: Text(widget.sensorType.replaceAll('_', ' ').toUpperCase()),
       ),
-      body: Center(
+      body: widget.sensorType == 'temperature' 
+      ? Column(
+        children: [
+          SfCartesianChart(
+            enableAxisAnimation: true,
+            primaryXAxis: const DateTimeAxis(
+              intervalType: DateTimeIntervalType.minutes,
+              interval: 60,
+              title: AxisTitle(
+                text: 'Time',
+                textStyle: TextStyle(fontSize: 20, color: Colors.black),
+              )),
+              primaryYAxis: const NumericAxis(
+                title: AxisTitle(
+                text: 'Temperature',
+                textStyle: TextStyle(fontSize: 20, color: Colors.black),
+              )),
+              title: const ChartTitle(text: 'Ambient Temperature of the Garden'),
+              legend: const Legend(isVisible: true),
+              tooltipBehavior: _tooltipBehavior,
+              series: <CartesianSeries>[
+                LineSeries<ChartData, DateTime>(
+                  dataSource: chartData,
+                  xValueMapper: (ChartData data, _) => data.time,
+                  yValueMapper: (ChartData data, _) => data.temp,
+                  name: 'Temperature',
+                  dataLabelSettings: const DataLabelSettings(isVisible: true)
+                )
+              ]
+            ),
+          Expanded(
+            child: Container(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    'Last Data: \n ${DateFormat('dd/MMM/yyyy HHmm').format(chartData.last.time)} \n ${chartData.last.temp}°C',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ])
+      : Center(
         child: Text(value, style: const TextStyle(fontSize: 24)),
       ),
     );
   }
+}
+
+class ChartData {
+  ChartData(this.time, this.temp);
+  final DateTime time;
+  final double temp;
 }

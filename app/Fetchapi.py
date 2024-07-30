@@ -1,13 +1,13 @@
 from flask import Flask, jsonify
-import ph
+
 app = Flask(__name__)
 
 @app.route('/sensor_data', methods=['GET'])
 def get_sensor_data():
     sensor_data = {
-        'temperature':ph.temperature_data(),        # Fixed temperature value
+        'temperature':30,        # Fixed temperature value
         'ph_level': 60,            # Fixed pH level value
-        'humidity': 40,           # Fixed relative humidity value
+        'humidity': 20,           # Fixed relative humidity value
         'light_intensity': 40,     # Fixed light intensity value
         'ec_level': 50,            # Fixed EC level value
     }
