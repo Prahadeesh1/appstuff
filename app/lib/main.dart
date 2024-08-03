@@ -235,7 +235,7 @@ class _SensorPageState extends State<SensorPage> {
   }
 
   fetchData() async {
-    final response = await http.get(Uri.parse('http://172.23.15.184:5000/sensor_data'));
+    final response = await http.get(Uri.parse('http://172.23.14.232:5000//sensor_data'));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       setState(() {
