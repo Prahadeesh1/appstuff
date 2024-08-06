@@ -1,7 +1,6 @@
 from flask import Flask, jsonify
 import Light_intensity as Light
 app = Flask(__name__)
-
 @app.route('/sensor_data', methods=['GET'])
 def get_sensor_data():
     sensor_data = {

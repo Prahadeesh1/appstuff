@@ -234,22 +234,22 @@ class _SensorPageState extends State<SensorPage> {
     fetchData();
   }
 
-  fetchData() async {
-    final response = await http.get(Uri.parse('http://172.23.14.232:5000//sensor_data'));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        value = data[widget.sensorType].toString();
-        if (widget.sensorType == 'temperature') {
-          chartData.add(ChartData(DateTime.now(), data['temperature'].toDouble()));
-        }
-      });
-    } else {
-      setState(() {
-        value = 'Failed to load data';
-      });
+    fetchData() async {
+      final response = await http.get(Uri.parse('http://192.168.18.136:5000/sensor_data'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          value = data[widget.sensorType].toString();
+          if (widget.sensorType == 'temperature') {
+            chartData.add(ChartData(DateTime.now(), data['temperature'].toDouble()));
+          }
+        });
+      } else {
+        setState(() {
+          value = 'Failed to load data';
+        });
+      }
     }
-  }
 
   @override
   Widget build(BuildContext context) {
